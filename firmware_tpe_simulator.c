@@ -17,33 +17,48 @@ typedef struct {
 
 void generate_transaction_id(char *dest, size_t size) {
     snprintf(dest, size, "TXN-%ld", time(NULL));
+    dest[size - 1] = '\0';
 }
 
 void get_current_timestamp(char *dest, size_t size) {
     time_t now = time(NULL);
     struct tm *t = localtime(&now);
-    strftime(dest, size, "%Y-%m-%d %H:%M:%S", t);
+    if (t != NULL) {
+        strftime(dest, size, "%Y-%m-%d %H:%M:%S", t);
+        dest[size - 1] = '\0';
+    } else {
+        strncpy(dest, "Unknown Time", size);
+        dest[size - 1] = '\0';
+    }
 }
 
 int read_card(char *buffer, size_t size) {
     printf("[TPE] Insert card (16-digit number): ");
-    scanf("%19s", buffer);
+    if (scanf("%19s", buffer) != 1) {
+        return 0;
+    }
+    buffer[size - 1] = '\0';
     return strcmp(buffer, VALID_CARD) == 0;
 }
 
 int validate_pin(char *buffer, size_t size) {
     printf("[TPE] Enter PIN: ");
-    scanf("%9s", buffer);
+    if (scanf("%9s", buffer) != 1) {
+        return 0;
+    }
+    buffer[size - 1] = '\0';
     return strcmp(buffer, VALID_PIN) == 0;
 }
 
 int read_amount(float *amount) {
     printf("[TPE] Enter amount: ");
-    scanf("%f", amount);
-    return *amount > 0;
+    if (scanf("%f", amount) != 1 || *amount <= 0) {
+        return 0;
+    }
+    return 1;
 }
 
-void log_transaction(Transaction *txn) {
+void log_transaction(const Transaction *txn) {
     FILE *f = fopen(LOG_FILE, "a");
     if (!f) {
         printf("[TPE] Warning: Failed to write log.\n");
@@ -57,7 +72,7 @@ void log_transaction(Transaction *txn) {
     fclose(f);
 }
 
-int main() {
+int main(void) {
     Transaction txn;
 
     if (!read_card(txn.card_number, sizeof(txn.card_number))) {
