@@ -1,4 +1,5 @@
-FROM gcc:12
+FROM centos:7
+RUN yum groupinstall -y "Development Tools" && yum install -y glibc-devel make gcc
 WORKDIR /app
 COPY . .
 RUN make
