@@ -17,18 +17,15 @@ typedef struct {
 
 void generate_transaction_id(char *dest, size_t size) {
     snprintf(dest, size, "TXN-%ld", time(NULL));
-    dest[size - 1] = '\0';
 }
 
 void get_current_timestamp(char *dest, size_t size) {
     time_t now = time(NULL);
     const struct tm *t = localtime(&now);
-    if (t != NULL) {
+    if (t) {
         strftime(dest, size, "%Y-%m-%d %H:%M:%S", t);
-        dest[size - 1] = '\0';
     } else {
         strncpy(dest, "Unknown Time", size);
-        dest[size - 1] = '\0';
     }
 }
 
@@ -37,7 +34,6 @@ int read_card(char *buffer, size_t size) {
     if (scanf("%19s", buffer) != 1) {
         return 0;
     }
-    buffer[size - 1] = '\0';
     return strcmp(buffer, VALID_CARD) == 0;
 }
 
@@ -46,7 +42,6 @@ int validate_pin(char *buffer, size_t size) {
     if (scanf("%9s", buffer) != 1) {
         return 0;
     }
-    buffer[size - 1] = '\0';
     return strcmp(buffer, VALID_PIN) == 0;
 }
 
@@ -74,6 +69,7 @@ void log_transaction(const Transaction *txn) {
 
 int main(void) {
     Transaction txn;
+    memset(&txn, 0, sizeof(txn));
 
     if (!read_card(txn.card_number, sizeof(txn.card_number))) {
         printf("[TPE] Card read error or unrecognized card.\n");
