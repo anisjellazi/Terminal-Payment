@@ -22,7 +22,7 @@ void generate_transaction_id(char *dest, size_t size) {
 
 void get_current_timestamp(char *dest, size_t size) {
     time_t now = time(NULL);
-    struct tm *t = localtime(&now);
+    const struct tm *t = localtime(&now);
     if (t != NULL) {
         strftime(dest, size, "%Y-%m-%d %H:%M:%S", t);
         dest[size - 1] = '\0';
